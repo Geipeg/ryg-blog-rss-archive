@@ -1,8 +1,8 @@
-# ryg-blog-rss-archive
+# Generic Blog RSS Archive Generator
 
-A tool and pre-compiled RSS feed to bypass WordPress.com feed limits and backfill the entire historical archive of **The ryg blog** (Fabian Giesen) into your RSS feed reader.
+A flexible Python tool to scrape historical blog archives across various platforms (WordPress, Ghost, Blogger, static sites, etc.) and compile them into a complete master RSS feed for your feed reader.
 
-Standard WordPress RSS feeds cap their output to the most recent 10–20 posts. This project generates a complete historical RSS timeline stretching from the blog's inception in October 2009 up to August 2026.
+Many blogs limit their standard RSS feeds to the most recent 10–20 posts. This project allows you to crawl monthly archive pages and generate a full historical RSS timeline for any target blog.
 
 ---
 
@@ -12,52 +12,63 @@ Standard WordPress RSS feeds cap their output to the most recent 10–20 posts. 
 
 ---
 
-## 🚀 Quick Start (For Feed Reader Users)
-
-If you just want to import the historical articles into your feed reader (FreshRSS, NetNewsWire, Tiny Tiny RSS, etc.), you don't need to run any code.
-
-1. Download or copy the raw URL of the `ryg_history.xml` file from this repository.
-2. Import or add it to your feed reader as a standard **RSS/Atom** feed.
-
----
-
 ## 🛠️ How it Works (Scraper Script)
 
-The repository includes `rss-replay.py`, a lightweight Python script that programmatically crawls the ryg blog's native monthly archive directories. It extracts every valid article link, mapping the real titles and publication dates directly from the live web headers to bypass aggressive Internet Archive/Wayback Machine rate limits.
+The repository includes a Python script that programmatically crawls a target blog's native monthly archive directories using **BeautifulSoup**. It extracts valid article links and fetches individual post content to build an RSS-compatible XML file.
 
 ### Requirements
 
 - Python 3.x
 - `requests` library
+- `beautifulsoup4` library
 
-### Running the Scraper
+### Installation & Setup
 
-If you want to update the archive or run it yourself:
+1. Install the required dependencies:
 
-```bash
-pip install requests
-python rss-replay.py
+   ```bash
+   pip install requests beautifulsoup4
+   ```
+
+2. Open the script and modify the **Configuration Section** at the top to match your target blog:
+
+```python
+CONFIG = {
+    "blog_name": "My Target Blog",
+    "base_url": "[https://example.com/](https://example.com/)",
+    "archive_url_format": "{base_url}archives/{year}/{month:02d}/",
+    "start_year": 2015,
+    "end_year": 2026,
+    "end_month": 12,
+    "post_link_selector": "article h2 a, .post-title a",
+    "post_content_selector": "article, .post-content, .entry-content"
+}
 ```
 
-This generates a standardized RSS 2.0 file named `ryg_history.xml`.
+3. Run the script:
+
+```bash
+python archive_scraper.py
+
+```
+
+This generates a standardized RSS 2.0 file named `[blog_name]_archive.xml`.
 
 ---
 
-## ⚙️ FreshRSS Import Guide
+## ⚙️ Feed Reader Import Guide
 
-To populate your dashboard queue with your compiled historical index:
+To load your compiled historical index into your feed reader (FreshRSS, NetNewsWire, Tiny Tiny RSS, etc.):
 
-### 1. Import the Feed
+1. Open your terminal in the directory containing your generated `.xml` file and serve it using Python's built-in HTTP server:
 
-1. Open your terminal in the directory containing `ryg_history.xml` and serve it using Python's built-in HTTP server:
-   ```bash
-   python -m http.server 8080
-   ```
-2. Go to FreshRSS -> **Subscription management** -> **Add a feed or category**.
-3. Paste `http://localhost:8080/ryg_history.xml` into the **Feed URL** box.
-4. Keep the **Type of feed source** as standard **RSS / Atom** and click add.
+```bash
+python -m http.server 8080
 
-_Note: Once your historical archive is processed, add his active feed (`https://wordpress.com`) as a standard independent subscription to track any future posts going forward._
+```
+
+2. Go to your feed reader -> **Subscription management** -> **Add a feed or category**.
+3. Paste `http://localhost:8080/your_blog_archive.xml` into the **Feed URL** box and save.
 
 ---
 
@@ -75,4 +86,5 @@ Permission is hereby granted, free of charge, to any person obtaining a copy of 
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
 ```
